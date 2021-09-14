@@ -1,7 +1,12 @@
 <template>
   <div class="wrapper">
     <div v-for="value of knockedPinsValue" :key="value" class="buttons">
-      <button @click="emitValue(value)">{{ value }}</button>
+      <button
+        :disabled="pinsLeft < value ? true : false"
+        @click="emitValue(value)"
+      >
+        {{ value }}
+      </button>
     </div>
   </div>
 </template>
@@ -12,20 +17,19 @@ import Component from "vue-class-component";
 
 @Component({})
 export default class Buttons extends Vue {
-  knockedPinsValue = [
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-  ] as number[];
+  knockedPinsValue = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as number[];
+  pinsLeft = 10;
+  rollCount = 0;
 
   emitValue(value: string): void {
+    this.pinsLeft = this.pinsLeft - parseInt(value);
+    this.rollCount++
+
+    if (this.pinsLeft === 0 || this.rollCount === 2) {
+      this.pinsLeft = 10;
+      this.rollCount = 0;
+    }
+    
     this.$emit("getPinValue", value);
   }
 }
@@ -50,7 +54,7 @@ button {
   cursor: pointer;
 }
 
-button:hover{
+button:hover {
   background-color: rgb(182, 229, 182);
 }
 </style>

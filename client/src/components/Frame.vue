@@ -52,7 +52,7 @@ export default class Frame extends Vue {
     this.secondRoll === 0
       ? (this.secondRoll = value)
       : (this.secondRoll = oldValue);
-      
+
     // Check if spare
     if (this.firstRoll + value === 10) {
       this.spare = true;
