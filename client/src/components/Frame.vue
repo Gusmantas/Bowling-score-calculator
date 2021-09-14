@@ -3,10 +3,10 @@
     <p class="frame-index">{{ frameID }}</p>
     <div class="roll-values">
       <p class="score">
-        {{ firstRollValue }}
+        {{ strike ? null : spare ? null : firstRoll }}
       </p>
       <p class="score second-score">
-        {{ !secondRollScore ? secondRollValue : secondRollScore }}
+        {{ strike ? "X" : spare ? "/" : secondRoll }}
       </p>
     </div>
     <p>Total</p>
@@ -24,25 +24,41 @@ export default class Frame extends Vue {
   @Prop() private firstRollScore!: number;
   @Prop() private secondRollScore!: number;
 
-  firstRollValue = "0";
-  secondRollValue = "0";
+  firstRoll = 0;
+  secondRoll = 0;
+  strike = false;
+  spare = false;
 
   @Watch("firstRollScore")
   onFirstRollChange(value: number, oldValue: number) {
+    // Check if strike
     if (value === 10 || oldValue === 10) {
-      this.secondRollValue = "X";
-      this.firstRollValue = "";
+      this.strike = true;
+      this.firstRoll = null;
       return;
     }
-    this.firstRollValue === "0"
-      ? (this.firstRollValue = value.toString())
-      : (this.firstRollValue = oldValue.toString());
+    // set state of first roll
+    this.firstRoll === 0
+      ? (this.firstRoll = value)
+      : (this.firstRoll = oldValue);
   }
 
   @Watch("secondRollScore")
   onSecondRollChange(value: number, oldValue: number) {
-    this.secondRollValue = oldValue.toString();
-    if (oldValue === 10) this.secondRollValue = "X";
+    // if strike - do nothing
+    if (this.firstRoll === 10 || this.secondRoll === 10) return;
+
+    // set state of second roll
+    this.secondRoll === 0
+      ? (this.secondRoll = value)
+      : (this.secondRoll = oldValue);
+      
+    // Check if spare
+    if (this.firstRoll + value === 10) {
+      this.spare = true;
+      this.firstRoll = null;
+      return;
+    }
   }
 }
 </script>
