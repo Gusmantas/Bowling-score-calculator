@@ -14,23 +14,36 @@
 <script lang="ts">
 import Vue from "vue";
 import Component from "vue-class-component";
+import { Prop, Watch } from "vue-property-decorator";
 
 @Component({})
 export default class Buttons extends Vue {
+  @Prop() private resetButtons!: boolean;
   knockedPinsValue = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as number[];
   pinsLeft = 10;
   rollCount = 0;
 
-  emitValue(value: string): void {
+  lockButtons(value: string): void {
     this.pinsLeft = this.pinsLeft - parseInt(value);
-    this.rollCount++
+    this.rollCount++;
 
     if (this.pinsLeft === 0 || this.rollCount === 2) {
       this.pinsLeft = 10;
       this.rollCount = 0;
     }
-    
+  }
+
+  emitValue(value: string): void {
+    this.lockButtons(value);
     this.$emit("getPinValue", value);
+  }
+
+  @Watch("resetButtons")
+  onButtonReset(value: boolean) {
+    if (value) {
+      this.pinsLeft = 10;
+      this.rollCount = 0;
+    }
   }
 }
 </script>

@@ -23,11 +23,22 @@ export default class Frame extends Vue {
   @Prop() private frameID!: number;
   @Prop() private firstRollScore!: number;
   @Prop() private secondRollScore!: number;
+  @Prop() private resetFrame!: boolean;
 
   firstRoll = 0;
   secondRoll = 0;
   strike = false;
   spare = false;
+
+  @Watch("resetFrame")
+  onResetFrame(value: boolean) {
+    if (value) {
+      this.firstRoll = 0;
+      this.secondRoll = 0;
+      this.strike = false;
+      this.spare = false;
+    }
+  }
 
   @Watch("firstRollScore")
   onFirstRollChange(value: number, oldValue: number) {
