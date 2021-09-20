@@ -9,11 +9,15 @@
         v-if="displayName"
         class="player-name"
         @click="displayName = false"
-        :style="{ 'background-color': boardColor || '#e0c9c8' }"
+        :style="{ 'background-color': primaryColor || '#e0c9c8' }"
       >
         {{ playerName }}
       </p>
-      <Buttons @getPinValue="setScore" :resetButtons="resetFrame" />
+      <Buttons
+        @getPinValue="setScore"
+        :resetButtons="resetFrame"
+        :buttonColor="primaryColor || '#e0c9c8'"
+      />
     </div>
     <div class="frame-wrapper">
       <div v-for="i in 10" :key="i" class="frame" @click="setActiveFrame(i)">
@@ -24,7 +28,7 @@
           :resetFrame="activeFrame === i ? resetFrame : ''"
           :style="[
             activeFrame === i
-              ? { 'background-color': boardColor || '#e0c9c8' }
+              ? { 'background-color': primaryColor || '#e0c9c8' }
               : { 'background-color': '' },
           ]"
         />
@@ -50,13 +54,13 @@ import PlayerNameInput from "./PlayerNameInput.vue";
   },
 })
 export default class GameBoard extends Vue {
-  firstRollScore = 0;
-  secondRollScore = 0;
+  firstRollScore = null;
+  secondRollScore = null;
   activeFrame = 1;
   resetFrame = false;
   playerName = "";
   displayName = false;
-  boardColor = "";
+  primaryColor = "";
 
   setPlayerName(value: string): void {
     this.playerName = value;
@@ -65,30 +69,34 @@ export default class GameBoard extends Vue {
   setActiveFrame(frameIndex: number): void {
     this.resetFrame = true;
     this.activeFrame = frameIndex;
-    this.firstRollScore = 0;
-    this.secondRollScore = 0;
+    this.firstRollScore = null;
+    this.secondRollScore = null;
   }
 
   setScore(value: number): void {
-    this.passRound();
-    if (value === 10) this.firstRollScore = value;
-
-    this.firstRollScore === 0
+    this.firstRollScore === null
       ? (this.firstRollScore = value)
       : (this.secondRollScore = value);
 
-    this.resetFrame = false;
+    // It takes a bit of time to pass values to frame,
+    // therefore I am giving it a second before clearing values
+    setTimeout(() => {
+      this.passRound(value);
+    }, 1);
   }
 
   setColorValue(value: string): void {
-    this.boardColor = value;
+    this.primaryColor = value;
   }
 
-  passRound(): void {
-    if (this.firstRollScore && this.secondRollScore) {
+  passRound(value: number): void {
+    if (
+      (this.firstRollScore != null && this.secondRollScore != null) ||
+      value === 10
+    ) {
       this.activeFrame++;
-      this.firstRollScore = 0;
-      this.secondRollScore = 0;
+      this.firstRollScore = null;
+      this.secondRollScore = null;
     }
   }
 }
@@ -110,7 +118,7 @@ export default class GameBoard extends Vue {
   border-radius: 5px;
   width: 70%;
   padding: 10px;
-  background-color: #e3e3e367;
+  background-color: #e3e3e3;
 }
 
 .player-input {

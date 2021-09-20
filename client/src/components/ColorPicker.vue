@@ -55,6 +55,7 @@ export default class ColorPicker extends Vue {
     height: 20px;
     margin-left: 5px;
     cursor: pointer;
+    border: 0.3px solid grey;
     &:hover {
       filter: brightness(90%);
     }

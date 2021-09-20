@@ -29,20 +29,28 @@ export default class Home extends Vue {
 @import url("https://fonts.googleapis.com/css2?family=Bowlby+One&display=swap");
 
 .new-player-btn {
-  width: 80px;
-  background-color: #e0c9c8;
-  border: 2px solid grey;
+  width: 170px;
+  background-color: #a2dd9a;
+  border: 0.5px solid grey;
   border-radius: 5px;
+  cursor: pointer;
+  padding: 5px;
+  transition: 0.3s ease-in-out;
+  color: black;
+  font-family: "Bowlby One";
+  letter-spacing: 1px;
 }
 
 .new-player-btn:hover {
   background-color: #dd9c9a;
+  color: white;
 }
 
 h1 {
   font-family: "Bowlby One";
-  margin: 0 0 60px 0;
+  margin: 0 0 50px 0;
   letter-spacing: 2px;
   font-size: 60px;
+  border-bottom: 2px solid grey;
 }
 </style>

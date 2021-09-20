@@ -3,13 +3,13 @@
     <p class="frame-index">{{ frameID }}</p>
     <div class="roll-values">
       <p class="score">
-        {{ strike ? null : spare ? null : firstRoll }}
+        {{ strike ? null : spare ? null : firstRoll ? firstRoll : "0" }}
       </p>
       <p class="score second-score">
-        {{ strike ? "X" : spare ? "/" : secondRoll }}
+        {{ strike ? "X" : spare ? "/" : secondRoll ? secondRoll : "0" }}
       </p>
     </div>
-    <p>Total</p>
+    <p v-if="!strike || !spare">{{ total }}</p>
   </div>
 </template>
 
@@ -25,60 +25,64 @@ export default class Frame extends Vue {
   @Prop() private secondRollScore!: number;
   @Prop() private resetFrame!: boolean;
 
-  firstRoll = 0;
-  secondRoll = 0;
+  firstRoll = null;
+  secondRoll = null;
   strike = false;
   spare = false;
+  total = 0;
 
   @Watch("resetFrame")
   onResetFrame(value: boolean) {
     if (value) {
-      this.firstRoll = 0;
-      this.secondRoll = 0;
+      this.firstRoll = null;
+      this.secondRoll = null;
       this.strike = false;
       this.spare = false;
     }
   }
 
   @Watch("firstRollScore")
-  onFirstRollChange(value: number, oldValue: number) {
-    // Check if strike
-    if (value === 10 || oldValue === 10) {
-      this.strike = true;
-      this.firstRoll = null;
-      return;
+  onFirstRollChange(value: number) {
+    if (!this.firstRoll) {
+      if (value === 10) {
+        this.strike = true;
+        this.secondRoll = value;
+        this.total = value;
+        this.firstRoll = null;
+        return;
+      }
+
+      this.firstRoll = value;
+      this.total = this.total + this.firstRoll;
     }
-    // set state of first roll
-    this.firstRoll === 0
-      ? (this.firstRoll = value)
-      : (this.firstRoll = oldValue);
   }
 
   @Watch("secondRollScore")
-  onSecondRollChange(value: number, oldValue: number) {
-    // if strike - do nothing
-    if (this.firstRoll === 10 || this.secondRoll === 10) return;
+  onSecondRollChange(value: number) {
+    if (!this.secondRoll) {
+      this.secondRoll = value;
+      this.total = this.total + this.secondRoll;
 
-    // set state of second roll
-    this.secondRoll === 0
-      ? (this.secondRoll = value)
-      : (this.secondRoll = oldValue);
-
-    // Check if spare
-    if (this.firstRoll + value === 10) {
-      this.spare = true;
-      this.firstRoll = null;
-      return;
+      if (this.firstRoll + value === 10) {
+        this.spare = true;
+        this.firstRoll = null;
+        return;
+      }
     }
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .frame {
   margin: 30px;
   width: 100%;
   border: 5px solid black;
+  background-color: whitesmoke;
+  cursor: pointer;
+  &:hover {
+    filter: brightness(95%);
+  }
 }
 .roll-values {
   display: flex;
