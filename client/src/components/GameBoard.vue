@@ -23,9 +23,10 @@
       <div v-for="i in 10" :key="i" class="frame" @click="setActiveFrame(i)">
         <Frame
           :frameID="i"
-          :firstRollScore="activeFrame === i ? firstRollScore : 0"
-          :secondRollScore="activeFrame === i ? secondRollScore : 0"
+          :firstRollScore="activeFrame === i ? firstRollScore : null"
+          :secondRollScore="activeFrame === i ? secondRollScore : null"
           :resetFrame="activeFrame === i ? resetFrame : ''"
+          :frameScore="frameScores[i - 1]"
           :style="[
             activeFrame === i
               ? { 'background-color': primaryColor || '#e0c9c8' }
@@ -44,6 +45,8 @@ import Frame from "../components/Frame.vue";
 import Buttons from "../components/Buttons.vue";
 import ColorPicker from "../components/ColorPicker.vue";
 import PlayerNameInput from "./PlayerNameInput.vue";
+import store from "../store/index";
+import { Watch } from "vue-property-decorator";
 
 @Component({
   components: {
@@ -54,13 +57,22 @@ import PlayerNameInput from "./PlayerNameInput.vue";
   },
 })
 export default class GameBoard extends Vue {
-  firstRollScore = null;
-  secondRollScore = null;
+  firstRollScore = null as null | number;
+  secondRollScore = null as null | number;
   activeFrame = 1;
   resetFrame = false;
   playerName = "";
   displayName = false;
   primaryColor = "";
+  
+
+  get frameScores() {
+    return store.state.frameScores;
+  }
+
+  get passRound() {
+    return store.state.passRound;
+  }
 
   setPlayerName(value: string): void {
     this.playerName = value;
@@ -77,27 +89,20 @@ export default class GameBoard extends Vue {
     this.firstRollScore === null
       ? (this.firstRollScore = value)
       : (this.secondRollScore = value);
-
-    // It takes a bit of time to pass values to frame,
-    // therefore I am giving it a second before clearing values
-    setTimeout(() => {
-      this.passRound(value);
-    }, 1);
   }
 
   setColorValue(value: string): void {
     this.primaryColor = value;
   }
 
-  passRound(value: number): void {
-    if (
-      (this.firstRollScore != null && this.secondRollScore != null) ||
-      value === 10
-    ) {
+  @Watch("passRound")
+  onPassRound(value: boolean) {
+    if (value === true) {
       this.activeFrame++;
       this.firstRollScore = null;
       this.secondRollScore = null;
     }
+    store.commit("setPassRound", false);
   }
 }
 </script>

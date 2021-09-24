@@ -9,7 +9,7 @@
         {{ strike ? "X" : spare ? "/" : secondRoll ? secondRoll : "0" }}
       </p>
     </div>
-    <p v-if="!strike || !spare">{{ total }}</p>
+    <TotalScore :total="[firstRollScore, secondRollScore]" :frameScore="frameScore" />
   </div>
 </template>
 
@@ -17,25 +17,33 @@
 import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
+import TotalScore from "./TotalScore.vue";
+import FrameScore from '../typings/Types';
 
-@Component({})
+@Component({
+  components: {
+    TotalScore,
+  },
+})
 export default class Frame extends Vue {
   @Prop() private frameID!: number;
   @Prop() private firstRollScore!: number;
   @Prop() private secondRollScore!: number;
   @Prop() private resetFrame!: boolean;
+  @Prop() private frameScore!: FrameScore;
 
-  firstRoll = null;
-  secondRoll = null;
+  firstRoll = null as null | number;
+  secondRoll = null as null | number;
   strike = false;
   spare = false;
-  total = 0;
+  // total: number[] = [];
 
   @Watch("resetFrame")
   onResetFrame(value: boolean) {
     if (value) {
       this.firstRoll = null;
       this.secondRoll = null;
+      // this.total = [];
       this.strike = false;
       this.spare = false;
     }
@@ -43,17 +51,17 @@ export default class Frame extends Vue {
 
   @Watch("firstRollScore")
   onFirstRollChange(value: number) {
+    // this.total.push(value);
     if (!this.firstRoll) {
       if (value === 10) {
         this.strike = true;
         this.secondRoll = value;
-        this.total = value;
         this.firstRoll = null;
         return;
       }
 
       this.firstRoll = value;
-      this.total = this.total + this.firstRoll;
+      // this.total.push(value)
     }
   }
 
@@ -61,11 +69,11 @@ export default class Frame extends Vue {
   onSecondRollChange(value: number) {
     if (!this.secondRoll) {
       this.secondRoll = value;
-      this.total = this.total + this.secondRoll;
+      // this.total.push(value);
 
-      if (this.firstRoll + value === 10) {
+      if (this.firstRoll && this.firstRoll + value === 10) {
         this.spare = true;
-        this.firstRoll = null;
+        this.secondRoll = this.firstRoll + value;
         return;
       }
     }
