@@ -1,6 +1,6 @@
 <template>
   <div class="frame">
-    <p class="frame-index">{{ frameID }}</p>
+    <p class="frame-index">{{ frameId }}</p>
     <div class="roll-values">
       <p class="score">
         {{ strike ? null : spare ? null : firstRoll ? firstRoll : "0" }}
@@ -9,7 +9,11 @@
         {{ strike ? "X" : spare ? "/" : secondRoll ? secondRoll : "0" }}
       </p>
     </div>
-    <TotalScore :total="[firstRollScore, secondRollScore]" :frameScore="frameScore" />
+    <TotalScore
+      :total="[firstRollScore, secondRollScore]"
+      :frameScore="frameScore"
+      :boardId="boardId"
+    />
   </div>
 </template>
 
@@ -18,7 +22,7 @@ import Vue from "vue";
 import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
 import TotalScore from "./TotalScore.vue";
-import FrameScore from '../typings/Types';
+import FrameScore from "../typings/Types";
 
 @Component({
   components: {
@@ -26,7 +30,8 @@ import FrameScore from '../typings/Types';
   },
 })
 export default class Frame extends Vue {
-  @Prop() private frameID!: number;
+  @Prop() private frameId!: number;
+  @Prop() private boardId!: number;
   @Prop() private firstRollScore!: number;
   @Prop() private secondRollScore!: number;
   @Prop() private resetFrame!: boolean;

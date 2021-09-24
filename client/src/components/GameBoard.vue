@@ -22,7 +22,8 @@
     <div class="frame-wrapper">
       <div v-for="i in 10" :key="i" class="frame" @click="setActiveFrame(i)">
         <Frame
-          :frameID="i"
+          :frameId="i"
+          :boardId="boardId"
           :firstRollScore="activeFrame === i ? firstRollScore : null"
           :secondRollScore="activeFrame === i ? secondRollScore : null"
           :resetFrame="activeFrame === i ? resetFrame : ''"
@@ -46,7 +47,7 @@ import Buttons from "../components/Buttons.vue";
 import ColorPicker from "../components/ColorPicker.vue";
 import PlayerNameInput from "./PlayerNameInput.vue";
 import store from "../store/index";
-import { Watch } from "vue-property-decorator";
+import { Prop, Watch } from "vue-property-decorator";
 
 @Component({
   components: {
@@ -57,6 +58,7 @@ import { Watch } from "vue-property-decorator";
   },
 })
 export default class GameBoard extends Vue {
+  @Prop() private boardId!: number;
   firstRollScore = null as null | number;
   secondRollScore = null as null | number;
   activeFrame = 1;
@@ -64,14 +66,13 @@ export default class GameBoard extends Vue {
   playerName = "";
   displayName = false;
   primaryColor = "";
-  
 
   get frameScores() {
-    return store.state.frameScores;
+    return store.state.gameBoards[this.boardId].frameScores;
   }
 
   get passRound() {
-    return store.state.passRound;
+    return store.state.gameBoards[this.boardId].passRound;
   }
 
   setPlayerName(value: string): void {
@@ -102,7 +103,7 @@ export default class GameBoard extends Vue {
       this.firstRollScore = null;
       this.secondRollScore = null;
     }
-    store.commit("setPassRound", false);
+    store.commit("setPassRound", { boardId: this.boardId, value: false });
   }
 }
 </script>

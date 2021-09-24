@@ -1,84 +1,37 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import framesData from '../helpers/storeData';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    frameScores: [
-      {
-        frameId: 0,
-        score: 0,
-        strikeOrSpare: '',
-
-      },
-      {
-        frameId: 1,
-        score: 0,
-        strikeOrSpare: '',
-      },
-      {
-        frameId: 2,
-        score: 0,
-        strikeOrSpare: '',
-      },
-      {
-        frameId: 3,
-        score: 0,
-        strikeOrSpare: '',
-      },
-      {
-        frameId: 4,
-        score: 0,
-        strikeOrSpare: '',
-      },
-      {
-        frameId: 5,
-        score: 0,
-        strikeOrSpare: '',
-      },
-      {
-        frameId: 6,
-        score: 0,
-        strikeOrSpare: '',
-      },
-      {
-        frameId: 7,
-        score: 0,
-        strikeOrSpare: '',
-      },
-      {
-        frameId: 8,
-        score: 0,
-        strikeOrSpare: '',
-      },
-      {
-        frameId: 9,
-        score: 0,
-        strikeOrSpare: '',
-      },
-    ],
-    passRound: false,
-    totalScore: 0
+    gameBoards: [framesData]
   },
+
   mutations: {
-    setStrikeOrSpare(state, frame) {
-      state.frameScores[frame.id].strikeOrSpare = frame.strikeOrSpare;
+
+    addNewBoard(state, data) {
+      state.gameBoards.push(data)
     },
 
-    setTotalFrameScore(state, frame) {
-      state.frameScores[frame.id].score = frame.score;
+    setStrikeOrSpare(state, data) {
+      state.gameBoards[data.boardId].frameScores[data.frameId].strikeOrSpare = data.strikeOrSpare;
     },
-    addToTotalFrameScore(state, frame) {
-      state.frameScores[frame.id].score = state.frameScores[frame.id].score + frame.score;
+    // setTotalFrameScore(state, data) {
+    //   state.gameBoards[data.boardId].frameScores[data.frameId].score = data.score;
+    //   // state.frameScores[frame.id].score = frame.score;
+    // },
+    addToTotalFrameScore(state, data) {
+      state.gameBoards[data.boardId].frameScores[data.frameId].score = state.gameBoards[data.boardId].frameScores[data.frameId].score + data.score;
     },
 
-    setPassRound(state, value) {
-      state.passRound = value;
+    setPassRound(state, data) {
+      state.gameBoards[data.boardId].passRound = data.value;
     },
 
-    addToTotalScore(state, value) {
-      state.totalScore = state.totalScore + value;
+    addToTotalScore(state, data) {
+      state.gameBoards[data.boardId].totalScore = data.score
     }
   },
   actions: {},

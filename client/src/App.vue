@@ -17,7 +17,7 @@ export default class App extends Vue {}
 </script>
 
 <style lang="scss">
-body{
+body {
   box-sizing: border-box;
   margin: 0;
 }

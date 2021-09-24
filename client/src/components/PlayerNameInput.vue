@@ -1,7 +1,7 @@
 <template>
   <div>
     <label>Name:</label>
-    <input type="text" v-model="playerName" maxLength="10"/>
+    <input type="text" v-model="playerName" maxLength="10" />
     <button class="set-name-btn" @click="setPlayerName">SET</button>
   </div>
 </template>

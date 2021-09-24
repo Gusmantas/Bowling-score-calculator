@@ -4,7 +4,7 @@
       <button
         :disabled="pinsLeft < value ? true : false"
         @click="emitValue(value)"
-        :style="{'background-color': buttonColor}"
+        :style="{ 'background-color': buttonColor }"
       >
         {{ value }}
       </button>
@@ -20,7 +20,7 @@ import { Prop, Watch } from "vue-property-decorator";
 @Component({})
 export default class Buttons extends Vue {
   @Prop() private resetButtons!: boolean;
-  @Prop() private buttonColor !: string;
+  @Prop() private buttonColor!: string;
   knockedPinsValue = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as number[];
   pinsLeft = 10;
   rollCount = 0;
@@ -69,6 +69,6 @@ button {
 }
 
 button:hover {
- filter: brightness(85%)
+  filter: brightness(85%);
 }
 </style>

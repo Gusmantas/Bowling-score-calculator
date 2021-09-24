@@ -15,18 +15,26 @@ import FrameScore from "../typings/Types";
 export default class TotalScore extends Vue {
   @Prop() private total!: number[];
   @Prop() private frameScore!: FrameScore;
+  @Prop() private boardId!: number;
   frameId = this.frameScore.frameId;
 
   get frameScores() {
-    return store.state.frameScores;
+    return store.state.gameBoards[this.boardId].frameScores;
   }
-  // frameScore = 0;
 
-  setFrameScore(id: number, score: number) {
-    store.commit("addToTotalFrameScore", { id, score });
+  setFrameScore(frameId: number, score: number) {
+    store.commit("addToTotalFrameScore", {
+      boardId: this.boardId,
+      frameId,
+      score,
+    });
   }
-  setFrameStrikeOrSpare(id: number, strikeOrSpare: string) {
-    store.commit("setStrikeOrSpare", { id, strikeOrSpare });
+  setFrameStrikeOrSpare(frameId: number, strikeOrSpare: string) {
+    store.commit("setStrikeOrSpare", {
+      boardId: this.boardId,
+      frameId,
+      strikeOrSpare,
+    });
   }
 
   checkIfStrike(firstRoll: number) {
@@ -47,6 +55,7 @@ export default class TotalScore extends Vue {
     this.setFrameStrikeOrSpare(this.frameId, "spare");
     this.setFrameScore(this.frameId, 10);
   }
+
   checkForPreviousStrikes(firstRoll: number) {
     if (
       this.frameId > 0 &&
@@ -85,7 +94,7 @@ export default class TotalScore extends Vue {
       } else {
         this.checkIfRegular(firstRoll, secondRoll);
       }
-      store.commit("setPassRound", true);
+      store.commit("setPassRound", { boardId: this.boardId, value: true });
     }
   }
 }
