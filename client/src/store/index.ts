@@ -18,20 +18,29 @@ export default new Vuex.Store({
     setStrikeOrSpare(state, data) {
       state.gameBoards[data.boardId].frameScores[data.frameId].strikeOrSpare = data.strikeOrSpare;
     },
-    // setTotalFrameScore(state, data) {
-    //   state.gameBoards[data.boardId].frameScores[data.frameId].score = data.score;
-    //   // state.frameScores[frame.id].score = frame.score;
-    // },
+    setTotalScore(state, data) {
+      state.gameBoards[data.boardId].totalScore = data.total;
+    },
+
     addToTotalFrameScore(state, data) {
       state.gameBoards[data.boardId].frameScores[data.frameId].score = state.gameBoards[data.boardId].frameScores[data.frameId].score + data.score;
+    },
+
+    setFrameScore(state, data){
+      state.gameBoards[data.boardId].frameScores[data.frameId].score = data.total;
     },
 
     setPassRound(state, data) {
       state.gameBoards[data.boardId].passRound = data.value;
     },
 
-    addToTotalScore(state, data) {
-      state.gameBoards[data.boardId].totalScore = data.score
+    // addToTotalScore(state, data) {
+    //   state.gameBoards[data.boardId].totalScore = data.score
+    // },
+
+    resetFrame(state, data){
+      state.gameBoards[data.boardId].frameScores[data.frameId].score = data.score;
+      state.gameBoards[data.boardId].frameScores[data.frameId].strikeOrSpare = data.strikeOrSpare;
     }
   },
   actions: {},

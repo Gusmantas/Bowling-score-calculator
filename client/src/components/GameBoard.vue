@@ -18,6 +18,12 @@
         :resetButtons="resetFrame"
         :buttonColor="primaryColor || '#e0c9c8'"
       />
+
+      <div class="frame-total">
+        <p :style="{ color: primaryColor || '#e0c9c8' }">
+          TOTAL: <strong>{{ totalBoardScore }}</strong>
+        </p>
+      </div>
     </div>
     <div class="frame-wrapper">
       <div v-for="i in 10" :key="i" class="frame" @click="setActiveFrame(i)">
@@ -26,8 +32,10 @@
           :boardId="boardId"
           :firstRollScore="activeFrame === i ? firstRollScore : null"
           :secondRollScore="activeFrame === i ? secondRollScore : null"
+          :thirdRollScore="i === 10 ? thirdRollScore : null"
           :resetFrame="activeFrame === i ? resetFrame : ''"
           :frameScore="frameScores[i - 1]"
+          :lastFrame="i === 10 ? true : false"
           :style="[
             activeFrame === i
               ? { 'background-color': primaryColor || '#e0c9c8' }
@@ -61,6 +69,7 @@ export default class GameBoard extends Vue {
   @Prop() private boardId!: number;
   firstRollScore = null as null | number;
   secondRollScore = null as null | number;
+  thirdRollScore = null as null | number;
   activeFrame = 1;
   resetFrame = false;
   playerName = "";
@@ -69,6 +78,11 @@ export default class GameBoard extends Vue {
 
   get frameScores() {
     return store.state.gameBoards[this.boardId].frameScores;
+  }
+
+  get totalBoardScore() {
+    // console.log(store.state.gameBoards[this.boardId].totalScore);
+    return store.state.gameBoards[this.boardId].totalScore;
   }
 
   get passRound() {
@@ -84,12 +98,21 @@ export default class GameBoard extends Vue {
     this.activeFrame = frameIndex;
     this.firstRollScore = null;
     this.secondRollScore = null;
+    if (this.activeFrame === 10) this.thirdRollScore = null;
   }
 
   setScore(value: number): void {
-    this.firstRollScore === null
-      ? (this.firstRollScore = value)
-      : (this.secondRollScore = value);
+    if (this.activeFrame != 10) {
+      this.firstRollScore === null
+        ? (this.firstRollScore = value)
+        : (this.secondRollScore = value);
+    } else {
+      this.firstRollScore === null
+        ? (this.firstRollScore = value)
+        : this.secondRollScore === null
+        ? (this.secondRollScore = value)
+        : (this.thirdRollScore = value);
+    }
   }
 
   setColorValue(value: string): void {
@@ -99,9 +122,11 @@ export default class GameBoard extends Vue {
   @Watch("passRound")
   onPassRound(value: boolean) {
     if (value === true) {
-      this.activeFrame++;
-      this.firstRollScore = null;
-      this.secondRollScore = null;
+      if(this.activeFrame != 10){
+        this.activeFrame++;
+        this.firstRollScore = null;
+        this.secondRollScore = null;
+      }
     }
     store.commit("setPassRound", { boardId: this.boardId, value: false });
   }
@@ -157,5 +182,20 @@ span {
 }
 .frame {
   margin: 5px 10px 0 0;
+}
+
+.frame-total {
+  position: absolute;
+  margin-left: 910px;
+  width: 200px;
+  height: 40px;
+  p {
+    text-shadow: -1px 0 grey, 0 1px grey, 2px 0 grey, 0 -1px grey;
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 0;
+    padding: 10px;
+    letter-spacing: 2px;
+  }
 }
 </style>

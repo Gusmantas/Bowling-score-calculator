@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p v-if="frameScore">{{ frameScore }}</p>
+    <p v-if="frameScore">{{ frameScore.score }}</p>
   </div>
 </template>
 
@@ -70,10 +70,24 @@ export default class TotalScore extends Vue {
       }
       this.setFrameScore(this.frameId - 1, firstRoll);
     }
+    if (
+      this.frameId > 0 &&
+      this.frameScores[this.frameId - 1].strikeOrSpare === "spare"
+    ) {
+      this.setFrameScore(this.frameId - 1, firstRoll);
+      this.setFrameStrikeOrSpare(this.frameId - 1, "");
+    }
   }
 
   checkIfStrikesOrSpares(firstRoll: number, secondRoll: number) {
     if (this.frameId > 0 && this.frameScores[this.frameId - 1].strikeOrSpare) {
+      if (
+        this.frameId > 1 &&
+        this.frameScores[this.frameId - 2].strikeOrSpare === "strike"
+      ) {
+        this.setFrameScore(this.frameId - 2, firstRoll);
+        this.setFrameStrikeOrSpare(this.frameId - 2, "");
+      }
       this.frameId > 0 &&
       this.frameScores[this.frameId - 1].strikeOrSpare === "strike"
         ? this.setFrameScore(this.frameId - 1, firstRoll + secondRoll)
@@ -81,12 +95,39 @@ export default class TotalScore extends Vue {
     }
   }
 
+  calculateTotal() {
+    let total = 0;
+    for (let frame of this.frameScores) {
+      total += frame.score;
+    }
+    store.commit("setTotalScore", { boardId: this.boardId, total });
+  }
+
   @Watch("total")
-  onTotalChange(value: number[], oldValue: number) {
+  onTotalChange(value: number[]) {
     const firstRoll = value[0];
     const secondRoll = value[1];
 
-    if ((firstRoll != null && secondRoll != null) || firstRoll === 10) {
+    if (value[2] != null) {
+      let thirdRoll = value[2];
+      if (
+        firstRoll === 10 ||
+        (firstRoll != null && firstRoll + secondRoll === 10)
+      ) {
+        store.commit("setFrameScore", {
+          boardId: this.boardId,
+          frameId: this.frameId,
+          total: firstRoll + secondRoll + thirdRoll,
+        });
+      } else {
+        store.commit("setFrameScore", {
+          boardId: this.boardId,
+          frameId: this.frameId,
+          total: firstRoll + secondRoll,
+        });
+      }
+    } else if ((firstRoll != null && secondRoll != null) || firstRoll === 10) {
+      if (value[2] != null) return;
       if (firstRoll === 10) {
         this.checkIfStrike(firstRoll);
       } else if (secondRoll != null && firstRoll + secondRoll === 10) {
@@ -94,8 +135,10 @@ export default class TotalScore extends Vue {
       } else {
         this.checkIfRegular(firstRoll, secondRoll);
       }
+
       store.commit("setPassRound", { boardId: this.boardId, value: true });
     }
+    this.calculateTotal();
   }
 }
 </script>

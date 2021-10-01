@@ -8,9 +8,12 @@
       <p class="score second-score">
         {{ strike ? "X" : spare ? "/" : secondRoll ? secondRoll : "0" }}
       </p>
+      <p v-if="lastFrame" class="score second-score">
+        {{ strike ? "X" : thirdRoll ? thirdRoll : "0" }}
+      </p>
     </div>
     <TotalScore
-      :total="[firstRollScore, secondRollScore]"
+      :total="[firstRollScore, secondRollScore, thirdRollScore]"
       :frameScore="frameScore"
       :boardId="boardId"
     />
@@ -23,6 +26,7 @@ import Component from "vue-class-component";
 import { Prop, Watch } from "vue-property-decorator";
 import TotalScore from "./TotalScore.vue";
 import FrameScore from "../typings/Types";
+import store from "../store/index";
 
 @Component({
   components: {
@@ -34,52 +38,76 @@ export default class Frame extends Vue {
   @Prop() private boardId!: number;
   @Prop() private firstRollScore!: number;
   @Prop() private secondRollScore!: number;
+  @Prop() private thirdRollScore!: number;
   @Prop() private resetFrame!: boolean;
   @Prop() private frameScore!: FrameScore;
+  @Prop() private lastFrame!: boolean;
 
   firstRoll = null as null | number;
   secondRoll = null as null | number;
+  thirdRoll = null as null | number;
   strike = false;
   spare = false;
-  // total: number[] = [];
 
   @Watch("resetFrame")
   onResetFrame(value: boolean) {
     if (value) {
       this.firstRoll = null;
       this.secondRoll = null;
-      // this.total = [];
       this.strike = false;
       this.spare = false;
+      store.commit("resetFrame", {
+        boardId: this.boardId,
+        frameId: this.frameId - 1,
+        score: 0,
+        strikeOrSpare: "",
+      });
     }
+  }
+
+  @Watch("thirdRollScore")
+  onlastFrame(value: number) {
+    if (this.firstRoll === 10) {
+      this.strike = true;
+      this.thirdRoll = value;
+      return;
+    }
+    if (this.firstRoll && this.firstRoll + this.secondRoll === 10) {
+      this.spare = true;
+      this.thirdRoll = value;
+      return;
+    }
+    return;
   }
 
   @Watch("firstRollScore")
   onFirstRollChange(value: number) {
-    // this.total.push(value);
-    if (!this.firstRoll) {
-      if (value === 10) {
-        this.strike = true;
-        this.secondRoll = value;
-        this.firstRoll = null;
-        return;
+    if (this.frameId != 10) {
+      if (!this.firstRoll) {
+        if (value === 10) {
+          this.strike = true;
+          this.secondRoll = value;
+          this.firstRoll = null;
+          return;
+        }
       }
-
-      this.firstRoll = value;
-      // this.total.push(value)
     }
+    this.firstRoll = value;
+    // console.log("first roll set", this.firstRoll);
   }
 
   @Watch("secondRollScore")
   onSecondRollChange(value: number) {
     if (!this.secondRoll) {
       this.secondRoll = value;
-      // this.total.push(value);
+      // console.log("second roll set ", this.secondRoll);
 
-      if (this.firstRoll && this.firstRoll + value === 10) {
-        this.spare = true;
-        this.secondRoll = this.firstRoll + value;
-        return;
+      if (this.frameId != 10) {
+        if (this.firstRoll && this.firstRoll + value === 10) {
+          this.spare = true;
+          this.secondRoll = this.firstRoll + value;
+          return;
+        }
       }
     }
   }
